@@ -33,19 +33,20 @@ def get_data_from_hydrus(url, api_key, tags_to_search):
 def parse_args():
     """Parse CLI arguments."""
     parser = ArgumentParser()
-    parser.add_argument("--url", type=str)
-    parser.add_argument("--api-key", type=str)
+    parser.add_argument("--url", type=str, help="URL to access the client API.")
+    parser.add_argument("--api-key", type=str, help="API key for client API.")
+    parser.add_argument("--output", type=str, default="stats", help="Path to folder where output files will be saved.")
     subparsers = parser.add_subparsers(help='sub-command help', dest="task")
     mi_parser = subparsers.add_parser("mi")
-    mi_parser.add_argument("--counts", type=str)
-    mi_parser.add_argument("--min-count", type=int, default=3)
-    mi_parser.add_argument("--cooccurrences", type=str)
-    mi_parser.add_argument("--mi-file", type=str)
+    mi_parser.add_argument("--counts", type=str, help="Use the given counts file instead of calculating one.")
+    mi_parser.add_argument("--min-count", type=int, default=3, help="Minumum number of times a tag has to occur to be included in calculations.")
+    mi_parser.add_argument("--cooccurrences", type=str, help="Use the given cooccurrence file instead of calculating one.")
+    mi_parser.add_argument("--mi-file", type=str, help="Use the given PMI file instead of calculating one.")
     mi_parser.add_argument("query", type=str, nargs='+')
 
     tf_idf_parser = subparsers.add_parser("tfidf")
-    tf_idf_parser.add_argument("--counts", type=str)
-    tf_idf_parser.add_argument("--min-count", type=int, default=3)
+    tf_idf_parser.add_argument("--counts", type=str, help="Use the given counts file instead of calculating one.")
+    tf_idf_parser.add_argument("--min-count", type=int, default=3, help="Minumum number of times a tag has to occur to be included in calculations.")
     tf_idf_parser.add_argument("query", type=str, nargs='+')
 
     args = parser.parse_args()
@@ -61,7 +62,7 @@ def main():
     else:
         metadata = None
 
-    stats_dir = Path("stats")
+    stats_dir = Path(args.output)
 
     if not stats_dir.is_dir():
         stats_dir.mkdir()
