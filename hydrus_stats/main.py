@@ -13,12 +13,10 @@ from hydrus_stats.mutual_information import (calculate_cooccurrences,
 from hydrus_stats.tf_idf import sort_images_by_tf_idf
 from hydrus_stats.utils import load_counts_from_file
 
-URL = "http://127.0.0.1:45869/"
-API_KEY = "ce57f3d488b225c1706e5de573482e60daffc39beae23d3a5c633974de9b4bba"
 
-def get_data_from_hydrus(tags_to_search):
+def get_data_from_hydrus(url, api_key, tags_to_search):
     """Query hydrus for tags."""
-    client: hydrus_api.utils.Client = hydrus_api.Client(API_KEY, api_url=URL)
+    client: hydrus_api.utils.Client = hydrus_api.Client(api_key, api_url=url)
     try:
         all_file_ids = client.search_files(tags_to_search)
     except hydrus_api.ConnectionError:
@@ -35,16 +33,19 @@ def get_data_from_hydrus(tags_to_search):
 def parse_args():
     """Parse CLI arguments."""
     parser = ArgumentParser()
-
+    parser.add_argument("--url", type=str)
+    parser.add_argument("--api-key", type=str)
     subparsers = parser.add_subparsers(help='sub-command help', dest="task")
     mi_parser = subparsers.add_parser("mi")
     mi_parser.add_argument("--counts", type=str)
+    mi_parser.add_argument("--min-count", type=int, default=3)
     mi_parser.add_argument("--cooccurrences", type=str)
-    mi_parser.add_argument("--mi_file", type=str)
+    mi_parser.add_argument("--mi-file", type=str)
     mi_parser.add_argument("query", type=str, nargs='+')
 
     tf_idf_parser = subparsers.add_parser("tfidf")
     tf_idf_parser.add_argument("--counts", type=str)
+    tf_idf_parser.add_argument("--min-count", type=int, default=3)
     tf_idf_parser.add_argument("query", type=str, nargs='+')
 
     args = parser.parse_args()
@@ -56,7 +57,7 @@ def main():
     args = parse_args()
 
     if args.query is not None:
-        metadata = get_data_from_hydrus(tags_to_search=args.query)
+        metadata = get_data_from_hydrus(args.url, args.api_key, tags_to_search=args.query)
     else:
         metadata = None
 
@@ -71,7 +72,7 @@ def main():
     else:
         if metadata is None:
             raise Exception("Can not count tags from an empty query!")
-        tag_counts, num_documents, _ = generate_counts(metadata, min_count=5, outfile=counts_path)
+        tag_counts, num_documents, _ = generate_counts(metadata, min_count=args.min_count, outfile=counts_path)
 
 
     vocab_path = stats_dir / "vocab.txt"
