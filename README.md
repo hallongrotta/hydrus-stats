@@ -29,7 +29,7 @@ All files will be stored in `.stats/`
 
 The Partial Mutual Information (PMI), somewhat simply put, is a measure of how likely it is to observe another tag if an image already has a given tag.
 This is not the same as a joint probability, however, since it factors in that some tags may be very common, and it would not be very informative to observe
-them together with anything. 
+them together with anything. The score is normalized to lie in the range of -1 to 1. 1 means that the tags always cooccur, and might be considered as siblings or as a parent/child pair. -1 means that the tags occur more often in general than they do together. 
 
 The TF-IDF score is based on similiar ideas of information theory. TF-IDF is a weighted score indicating how 'important' words are, given how often they appear.
 In this particular implementation, what is produced is a list of image hashes sorted, in ascending order, by the sum 
