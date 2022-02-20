@@ -11,17 +11,17 @@ Install with `pip` (I recommend using a venv to avoid package conflicts)
 
 The CLI can be run like this:
 
-`hydrus-stats mi tentacles`
+`hydrus-stats --url URL --api-key API-KEY mi tentacles`
 
-`hydrus-stats tfidf tentacles`
+`hydrus-stats --url URL --api-key API-KEY tfidf tentacles`
 
 Multiple tags can also be entered, which will search for images that contain all tags.
 
-`hydrus-stats tfidf tentacles breasts`
+`hydrus-stats --url URL --api-key API-KEY tfidf tentacles breasts`
 
 If you want to speed things up, the CLI can be invoked with args to use previously saved data files, like so
 
-`hydrus-stats mi --cooccurrences stats/cooccurrences.pickle`
+`hydrus-stats --url URL --api-key API-KEY mi --cooccurrences stats/cooccurrences.pickle`
 
 All files will be stored in `.stats/`
 
@@ -38,4 +38,4 @@ very likely that the image is tagged with a single common tag, or a set of very 
 
 ## A warning
 
-Calculating cooccurrences can take a long time, especially for searches with many tags. Consider increasing the `min_count` parameter in `main.py` to decrease the number of "noise" tags, or make a more narrow search you think it takes to long to calculate.
+Calculating cooccurrences can take a long time, especially for searches with many tags. Consider increasing the `min_count` argument to decrease the number of "noise" tags, or make a more narrow search you think it takes to long to calculate.
