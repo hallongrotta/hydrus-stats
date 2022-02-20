@@ -11,13 +11,13 @@ Install with `pip` (I recommend using a venv to avoid package conflicts)
 
 The CLI can be run like this:
 
-`hydrus-stats --url URL --api-key API-KEY mi tentacles`
+`hydrus-stats --url URL --api-key API-KEY mi dog`
 
-`hydrus-stats --url URL --api-key API-KEY tfidf tentacles`
+`hydrus-stats --url URL --api-key API-KEY tfidf dog`
 
 Multiple tags can also be entered, which will search for images that contain all tags.
 
-`hydrus-stats --url URL --api-key API-KEY tfidf tentacles breasts`
+`hydrus-stats --url URL --api-key API-KEY tfidf dog cat`
 
 If you want to speed things up, the CLI can be invoked with args to use previously saved data files, like so
 
