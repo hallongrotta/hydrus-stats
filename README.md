@@ -35,3 +35,7 @@ The TF-IDF score is based on similiar ideas of information theory. TF-IDF is a w
 In this particular implementation, what is produced is a list of image hashes sorted, in ascending order, by the sum 
 TF-IDF of their tags. The sum score can be seen as a measure of how much information is stored in the tag set. If an image has a very low score, then it is
 very likely that the image is tagged with a single common tag, or a set of very common tags.
+
+## A warning
+
+Calculating cooccurrences can take a long time, especially for searches with many tags. Consider increasing the `min_count` parameter in `main.py` to decrease the number of "noise" tags, or make a more narrow search.
