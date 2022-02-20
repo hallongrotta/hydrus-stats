@@ -23,7 +23,7 @@ If you want to speed things up, the CLI can be invoked with args to use previous
 
 `hydrus-stats --url URL --api-key API-KEY mi --cooccurrences stats/cooccurrences.pickle`
 
-All files will be stored in `.stats/`
+All files will be stored in `.stats/` by default.
 
 ## What do these numbers/outputs mean?
 
