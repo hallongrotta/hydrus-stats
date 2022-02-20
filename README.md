@@ -38,4 +38,4 @@ very likely that the image is tagged with a single common tag, or a set of very 
 
 ## A warning
 
-Calculating cooccurrences can take a long time, especially for searches with many tags. Consider increasing the `min_count` parameter in `main.py` to decrease the number of "noise" tags, or make a more narrow search.
+Calculating cooccurrences can take a long time, especially for searches with many tags. Consider increasing the `min_count` parameter in `main.py` to decrease the number of "noise" tags, or make a more narrow search you think it takes to long to calculate.
