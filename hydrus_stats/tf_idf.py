@@ -1,8 +1,10 @@
 import threading
-import numpy as np
-from hydrus_stats.utils import get_tags
-
 from queue import Queue
+
+import numpy as np
+from tqdm import tqdm
+
+from .utils import get_tags
 
 
 def sum_tf_idfs(list_of_tags):
@@ -80,6 +82,7 @@ class TFIDF:
 
     def get_tf_idf_vectors(self, metadata, filter_namespaced=False):
         vectors = {}
+        pbar = tqdm(total=len(metadata), desc="Calculating TF-IDF")
         for entry in metadata:
             img_hash = entry["hash"]
             tags = get_tags(entry, filter_namespaced)
@@ -87,17 +90,19 @@ class TFIDF:
                 continue
 
             vectors[img_hash] = self.tf_idf(tags)
+            pbar.update()
 
         return vectors
 
 
-def sort_images_by_tf_idf(metadata, tag_vocab, tag_counts, num_documents):
+def sort_images_by_tf_idf(metadata, tag_vocab, tag_counts, num_documents, outfile):
     tf_idf: TFIDF = TFIDF(tag_vocab, tag_counts, num_documents)
 
     vectors = tf_idf.get_tf_idf_vectors(metadata, filter_namespaced=True)
 
     sorted_vects = sorted(vectors.items(), key=lambda x: sum_tf_idfs(x[1]))
 
-    with open("hashes.txt", "w", encoding="utf8") as f:
+    with open(outfile, "w", encoding="utf8") as f:
         for h, _ in sorted_vects:
             f.write(h + "\n")
+    print(f"Saved sorted hashes to {outfile}")

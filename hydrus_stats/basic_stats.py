@@ -1,5 +1,6 @@
-from hydrus_stats.utils import get_tags
 import json
+
+from hydrus_stats.utils import get_tags
 
 
 def get_counts(metadata, min_count, exclude_namespaced=False, tags_to_exclude=None):

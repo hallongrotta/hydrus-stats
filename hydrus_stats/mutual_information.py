@@ -1,13 +1,15 @@
-import pickle
 import csv
+import pickle
 
 import numpy as np
-from scipy.sparse import lil_matrix, tril, csr_matrix
+from scipy.sparse import csr_matrix, lil_matrix, tril
 from tqdm import tqdm
+
 from hydrus_stats.utils import get_tags
 
+
 def sort_tag_pairs_by_pmi(m_i: csr_matrix, idx2tag: dict, outfile=None):
-    """Sort tag pairs by their PMI"""
+    """Sort tag pairs by their PMI."""
 
     m_i = tril(m_i, format="csr")
     m_i.eliminate_zeros()
@@ -75,7 +77,10 @@ def calculate_mi(cooccurrences: csr_matrix, counts: np.array, num_documents, nor
             m_i = np.log(p_xy/(p_x*p_y))
 
             if normalize:
-               m_i = m_i / -np.log(p_xy)
+                if p_xy != 1.0:
+                    m_i = m_i / -np.log(p_xy)
+
+
 
             MI[x, y] = m_i
         pbar.update()
