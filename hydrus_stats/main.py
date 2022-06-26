@@ -1,8 +1,9 @@
 
 import pickle
 import sys
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 from pathlib import Path
+from typing import Any, Dict, List
 
 import hydrus_api.utils
 
@@ -14,7 +15,7 @@ from hydrus_stats.tf_idf import sort_images_by_tf_idf
 from hydrus_stats.utils import load_counts_from_file
 
 
-def get_data_from_hydrus(url, api_key, tags_to_search):
+def get_data_from_hydrus(url, api_key, tags_to_search) -> List[Dict[str, Any]]:
     """Query hydrus for tags."""
     client: hydrus_api.utils.Client = hydrus_api.Client(api_key, api_url=url)
     try:
@@ -30,7 +31,7 @@ def get_data_from_hydrus(url, api_key, tags_to_search):
     return metadata
 
 
-def parse_args():
+def parse_args() -> Namespace:
     """Parse CLI arguments."""
     parser = ArgumentParser()
     parser.add_argument("--url", type=str, help="URL to access the client API.")
@@ -53,7 +54,7 @@ def parse_args():
 
     return args
 
-def main():
+def main() -> None:
     """Main function."""
     args = parse_args()
 

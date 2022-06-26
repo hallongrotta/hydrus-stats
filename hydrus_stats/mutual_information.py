@@ -1,5 +1,6 @@
 import csv
 import pickle
+from typing import Dict
 
 import numpy as np
 from scipy.sparse import csr_matrix, lil_matrix, tril
@@ -7,8 +8,10 @@ from tqdm import tqdm
 
 from hydrus_stats.utils import get_tags
 
+from numpy.typing import NDArray
 
-def sort_tag_pairs_by_pmi(m_i: csr_matrix, idx2tag: dict, outfile=None):
+
+def sort_tag_pairs_by_pmi(m_i: csr_matrix, idx2tag: Dict[int, str], outfile=None):
     """Sort tag pairs by their PMI."""
 
     m_i = tril(m_i, format="csr")
@@ -31,7 +34,7 @@ def sort_tag_pairs_by_pmi(m_i: csr_matrix, idx2tag: dict, outfile=None):
 
     return tag_pairs
 
-def calculate_cooccurrences(metadata, vocab, outfile=None):
+def calculate_cooccurrences(metadata, vocab: Dict[str, int], outfile=None):
     """Calculate cooccurrence matrix."""
     vocab_size = len(vocab)
     cooccurrences = lil_matrix((vocab_size, vocab_size), dtype=np.uint32)
@@ -64,25 +67,34 @@ def calculate_cooccurrences(metadata, vocab, outfile=None):
 
     return cooccurrences
 
-def calculate_mi(cooccurrences: csr_matrix, counts: np.array, num_documents, normalize=True):
+
+
+def calculate_mi(cooccurrences: csr_matrix, counts: NDArray[np.uint64], num_documents: int, normalize: bool = True) -> NDArray[np.float64]:
     """Calculate PMI for tag pairs."""
+
+    def calc_m_i(p_x, p_y, p_xy):
+        m_i = np.log(p_xy/(p_x*p_y))
+        if normalize and p_xy != 1.0:
+            m_i = m_i / -np.log(p_xy)
+        return m_i
+    
+    def calc_p(cooccurrence, counts, num_documents):
+        p_xy = cooccurrence/num_documents
+        p_x = counts[x]/num_documents
+        p_y = counts[y]/num_documents
+        return p_x, p_y, p_xy
+
+    def calc_column(row: csr_matrix):
+        return [calc_m_i(*calc_p(cooccurrence, counts, num_documents)) for y, cooccurrence in zip(row.indices, row.data)]
+            
     MI = lil_matrix(cooccurrences.shape, dtype=np.float64)
     pbar = tqdm(total=cooccurrences.shape[0], desc="Calculating mutual information") # Initialise
     for x, row in enumerate(cooccurrences):
+        MI[x, :] = calc_column(row)
         for y, cooccurrence in zip(row.indices, row.data):
-            p_xy = cooccurrence/num_documents
-            p_x = counts[x]/num_documents
-            p_y = counts[y]/num_documents
-
-            m_i = np.log(p_xy/(p_x*p_y))
-
-            if normalize:
-                if p_xy != 1.0:
-                    m_i = m_i / -np.log(p_xy)
+            MI[x, y] = calc_m_i(*calc_p(cooccurrence, counts, num_documents))
 
 
-
-            MI[x, y] = m_i
         pbar.update()
     
     MI = MI.tocsr()
@@ -93,7 +105,7 @@ def calculate_mi(cooccurrences: csr_matrix, counts: np.array, num_documents, nor
 def calculate_mututal_information(cooccurrences: csr_matrix, tag_counts, idx2tag, num_documents, outfile=None):
     """Calculate PMI for tag pairs, and save to file."""
     vocab_size = len(tag_counts)
-    counts_vec = np.zeros((vocab_size), dtype=np.uint32)
+    counts_vec = np.zeros((vocab_size), dtype=np.uint64)
     for i in range(vocab_size):
         tag = idx2tag[i]
         counts_vec[i] = tag_counts[tag]

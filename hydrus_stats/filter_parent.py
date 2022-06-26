@@ -9,8 +9,13 @@ parents = pd.read_csv("tag_parents.csv", header=0)
 parents = parents.set_index(keys=["parent_tag", "child_tag"])
 
 
-def is_parent(parent, child):
-    """Check if parent is parent of child"""
+def is_parent(parent: str, child: str) -> bool:
+    """
+    Check if parent is parent of child.
+    :param parent: parent tag
+    :param child: child tag
+    :return: True if parent is parent of child, False otherwise.
+    """
     try:
         _ = parents.loc[parent, child]
         return True
@@ -18,8 +23,8 @@ def is_parent(parent, child):
         return False
 
 
-def main():
-    """Main function"""
+def main() -> None:
+    """Main function. """
     with open("stats_full/tag_mi.csv", "r", encoding="utf8") as infile, open(
         "stats_full/tag_mi_filtered.csv", "w", encoding="utf8", newline=""
     ) as outfile:

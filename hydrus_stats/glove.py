@@ -12,11 +12,16 @@ from sklearn.cluster import DBSCAN
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 
-from hydrus_stats.utils import get_tags, idToURL
+from hydrus_stats.utils import get_tags, id_to_url
 
 
 def load_glove(embedding_file, vocab_file):
-
+    """
+    Loads the glove embeddings from a file.
+    :param embedding_file: The file containing the embeddings.
+    :param vocab_file: The file containing the vocabulary.
+    :return: A dictionary of embeddings.
+    """
     if os.path.exists("embedding_dict.pickle"):
         with open("embedding_dict.pickle", "rb") as f:
             vocab_embedding = pickle.load(f)
@@ -39,6 +44,13 @@ def load_glove(embedding_file, vocab_file):
 
 
 def glove_images(client: hydrus.Client, glove_embeddings, metadata):
+    """
+    Get embeddings for all images in the metadata.
+    :param client: hydrus client
+    :param glove_embeddings: glove embeddings
+    :param metadata: metadata
+    :return: embeddings, ids, tags
+    """
     file_ids = []
     tag_embeddings = []
     image_tags = []
@@ -66,12 +78,26 @@ def glove_images(client: hydrus.Client, glove_embeddings, metadata):
 
 
 def dbscan(data, eps):
+    """
+    DBScan clustering algorithm.
+    :param data: numpy array of shape (n, d)
+    :param eps: maximum distance between two samples to be considered as in the same cluster
+    :return: list of clusters
+    """
     dbscan = DBSCAN(eps=eps, metric="euclidean")
     clusters = dbscan.fit_predict(data)
     return clusters
 
 
 def plot_pca(matrix, file_ids, image_tags, num_to_plot=100):
+    """
+    PCA is a linear transformation that maps the data into a lower dimensional space.
+    The number of dimensions is the number of principal components.
+    The number of principal components is the number of dimensions that explain the most variance in the data.
+    :param matrix: numpy array of shape (n, d)
+    :param file_ids: list of file ids
+    :param image_tags: list of image tags
+    """
     pca = PCA(n_components=2)
     reduced = pca.fit_transform(matrix)
 
@@ -87,8 +113,11 @@ def plot_pca(matrix, file_ids, image_tags, num_to_plot=100):
         clusters = dbscan.fit_predict(matrix)
         num_clusters[i] = max(clusters)
 
+
+
     plt.plot(x, num_clusters)
     plt.show()
+
 
     dbscan = DBSCAN(eps=0.08, metric="cosine")
     clusters = dbscan.fit_predict(matrix)
@@ -102,7 +131,7 @@ def plot_pca(matrix, file_ids, image_tags, num_to_plot=100):
         else:
             i = int(ind)
 
-        url = idToURL(file_ids[i])
+        url = id_to_url(file_ids[i])
         webbrowser.open(url)
         print(f"Cluster: {clusters[i]}")
         print(image_tags[i])
@@ -110,6 +139,7 @@ def plot_pca(matrix, file_ids, image_tags, num_to_plot=100):
 
     plt.connect("pick_event", onpick)
     plt.show()
+
 
 
 def plot_tsne(matrix, file_ids, image_tags, num_to_plot=1000, cache_file="t_sne.cache"):
@@ -153,7 +183,7 @@ def plot_tsne(matrix, file_ids, image_tags, num_to_plot=1000, cache_file="t_sne.
             i = int(ind)
             print(image_tags[i])
 
-        url = idToURL(file_ids[i])
+        url = id_to_url(file_ids[i])
         # webbrowser.open(url)
         print("\n")
 
