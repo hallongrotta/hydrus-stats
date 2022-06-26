@@ -1,13 +1,13 @@
-
+from audioop import add
 from tqdm import tqdm
 import pandas as pd
 
 
-def add_counts() -> None:
+def add_counts():
     """Add tag counts to PMI pairs"""
-    counts: pd.DataFrame = pd.read_json("stats_full//counts.json")
+    counts = pd.read_json("stats_full//counts.json")
 
-    tag_pairs: pd.DataFrame = pd.read_csv("stats_full//tag_mi_filtered.csv", names=["tag1", "tag2", "mi"], keep_default_na=False)
+    tag_pairs = pd.read_csv("stats_full//tag_mi_filtered.csv", names=["tag1", "tag2", "mi"], keep_default_na=False)
 
     sum_counts = []
     pbar = tqdm(total=len(tag_pairs))

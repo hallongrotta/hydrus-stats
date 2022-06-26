@@ -1,26 +1,17 @@
 import json
-from typing import Any, Dict, List, Tuple
 
 from hydrus_stats.utils import get_tags
 
 
-def get_counts(metadata: Dict[str, Dict[str, Any]], min_count: int, exclude_namespaced: bool =False, tags_to_exclude: List[str]=None):
-    """
-    Create tag counts.
-    :param metadata: List of metadata dictionaries.
-    :param min_count: Minimum count for a tag to be included in the vocabulary.
-    :param exclude_namespaced: Whether to exclude namespaced tags.
-    :param tags_to_exclude: List of tags to exclude.
-    :return: Dictionary of tag counts.
-    """
-    tag_counts: Dict[str, int] = {}
+def get_counts(metadata, min_count, exclude_namespaced=False, tags_to_exclude=None):
+    tag_counts = dict()
 
     for entry in metadata:
-        for tag in get_tags(entry, exclude_namespaced):
+        for t in get_tags(entry, exclude_namespaced):
             try:
-                tag_counts[tag] += 1
+                tag_counts[t] += 1
             except KeyError:
-                tag_counts[tag] = 1
+                tag_counts[t] = 1
 
     # Filter out tags that occur less than min_count times
     keys = list(tag_counts.keys())
@@ -57,16 +48,10 @@ def generate_counts(metadata, min_count=2, exclude_namespaced=True, tags_to_excl
     return tag_counts, num_documents, num_tags
 
 
-def generate_vocab(tag_counts: Dict[str, int], min_count: int, outfile: str =None) -> Tuple[Dict[str, int], Dict[int, str]]:
-    """
-    Create vocabulary.
-    :param tag_counts: Dictionary of tag counts.
-    :param min_count: Minimum count for a tag to be included in the vocabulary.
-    :param outfile: Path to output file.
-    :return: Dictionary of tag indices and tag strings.
-    """
-    tag2idx: Dict[str, int] = {}
-    idx2tag: Dict[int, str] = {}
+def generate_vocab(tag_counts: dict, min_count, outfile=None):
+    """Create an ordered vocab."""
+    tag2idx = {}
+    idx2tag = {}
     i = 0
 
     for key, count in tag_counts.items():

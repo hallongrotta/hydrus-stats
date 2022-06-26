@@ -1,6 +1,5 @@
 import csv
 import pickle
-from typing import Dict
 
 import numpy as np
 from scipy.sparse import csr_matrix, lil_matrix, tril
@@ -8,10 +7,8 @@ from tqdm import tqdm
 
 from hydrus_stats.utils import get_tags
 
-from numpy.typing import NDArray
 
-
-def sort_tag_pairs_by_pmi(m_i: csr_matrix, idx2tag: Dict[int, str], outfile=None):
+def sort_tag_pairs_by_pmi(m_i: csr_matrix, idx2tag: dict, outfile=None):
     """Sort tag pairs by their PMI."""
 
     m_i = tril(m_i, format="csr")
@@ -34,7 +31,7 @@ def sort_tag_pairs_by_pmi(m_i: csr_matrix, idx2tag: Dict[int, str], outfile=None
 
     return tag_pairs
 
-def calculate_cooccurrences(metadata, vocab: Dict[str, int], outfile=None):
+def calculate_cooccurrences(metadata, vocab, outfile=None):
     """Calculate cooccurrence matrix."""
     vocab_size = len(vocab)
     cooccurrences = lil_matrix((vocab_size, vocab_size), dtype=np.uint32)
@@ -96,7 +93,7 @@ def calculate_mi(cooccurrences: csr_matrix, counts: np.array, num_documents, nor
 def calculate_mututal_information(cooccurrences: csr_matrix, tag_counts, idx2tag, num_documents, outfile=None):
     """Calculate PMI for tag pairs, and save to file."""
     vocab_size = len(tag_counts)
-    counts_vec = np.zeros((vocab_size), dtype=np.uint64)
+    counts_vec = np.zeros((vocab_size), dtype=np.uint32)
     for i in range(vocab_size):
         tag = idx2tag[i]
         counts_vec[i] = tag_counts[tag]
