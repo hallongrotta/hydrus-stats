@@ -108,7 +108,7 @@ def main() -> None:
         with open(mi_file, "rb") as f:
             m_i = pickle.load(f)
 
-        sort_tag_pairs_by_pmi(m_i, idx2tag, mi_tag_pair_file)
+        sort_tag_pairs(m_i, idx2tag, tag_counts, mi_tag_pair_file)
 
 
     else:

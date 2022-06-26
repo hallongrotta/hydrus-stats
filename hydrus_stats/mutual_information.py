@@ -8,7 +8,7 @@ from tqdm import tqdm
 from hydrus_stats.utils import get_tags
 
 
-def sort_tag_pairs_by_pmi(m_i: csr_matrix, idx2tag: dict, outfile=None):
+def sort_tag_pairs(m_i: csr_matrix, idx2tag: dict, tag_counts: dict, outfile=None):
     """Sort tag pairs by their PMI."""
 
     m_i = tril(m_i, format="csr")
@@ -17,10 +17,14 @@ def sort_tag_pairs_by_pmi(m_i: csr_matrix, idx2tag: dict, outfile=None):
     tag_pairs = []
 
     for i, row in enumerate(m_i):
-        for j, m_i in zip(row.indices, row.data):
-            tag_pairs.append((idx2tag[i], idx2tag[j], m_i))
+        tag_i = idx2tag[i]
+        i_count = tag_counts[tag_i]
+        for j, pmi in zip(row.indices, row.data):
+            tag_j = idx2tag[j]
+            j_count = tag_counts[tag_j]
+            tag_pairs.append((tag_i, idx2tag[j], pmi, i_count + j_count))
 
-    tag_pairs = sorted(tag_pairs, key=lambda x: -x[2])
+    tag_pairs = sorted(tag_pairs, key=lambda x: (-x[2], -x[3]))
     
     if outfile is not None:
         with open(outfile, "w", encoding="utf8", newline="") as f:
@@ -39,20 +43,19 @@ def calculate_cooccurrences(metadata, vocab, outfile=None):
     for entry in metadata:
         tag_set = get_tags(entry, exclude_namespaced=True)
         length = len(tag_set)
-        for i in range(length):
-            for j in range(i, length):
-                w_i = tag_set[i]
+        for i in range(length-1):
+            w_i = tag_set[i]
+            w_i_idx = vocab.get(w_i)
+            if w_i_idx is None:
+                continue
+            for j in range(i+1, length):
                 w_j = tag_set[j]
-                
-                w_i_idx = vocab.get(w_i)
                 w_j_idx = vocab.get(w_j)
-                if w_j_idx is None or w_i_idx is None:
+                if w_j_idx is None:
                     continue
 
-                # Dont count the tag with itself
-                if w_i_idx != w_j_idx:
-                    cooccurrences[w_i_idx, w_j_idx] += 1
-                    cooccurrences[w_j_idx, w_i_idx] += 1
+                cooccurrences[w_i_idx, w_j_idx] += 1
+                cooccurrences[w_j_idx, w_i_idx] += 1
         pbar.update()
 
     cooccurrences = cooccurrences.tocsr()
@@ -69,11 +72,10 @@ def calculate_mi(cooccurrences: csr_matrix, counts: np.array, num_documents, nor
     MI = lil_matrix(cooccurrences.shape, dtype=np.float64)
     pbar = tqdm(total=cooccurrences.shape[0], desc="Calculating mutual information") # Initialise
     for x, row in enumerate(cooccurrences):
+        p_x = counts[x]/num_documents
         for y, cooccurrence in zip(row.indices, row.data):
-            p_xy = cooccurrence/num_documents
-            p_x = counts[x]/num_documents
             p_y = counts[y]/num_documents
-
+            p_xy = cooccurrence/num_documents
             m_i = np.log(p_xy/(p_x*p_y))
 
             if normalize:
