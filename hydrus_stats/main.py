@@ -43,7 +43,7 @@ def parse_args() -> Namespace:
     mi_parser.add_argument("--min-count", type=int, default=3, help="Minumum number of times a tag has to occur to be included in calculations.")
     mi_parser.add_argument("--cooccurrences", type=str, help="Use the given cooccurrence file instead of calculating one.")
     mi_parser.add_argument("--mi-file", type=str, help="Use the given PMI file instead of calculating one.")
-    mi_parser.add_argument("query", type=str, nargs='+')
+    mi_parser.add_argument("query", type=str, nargs='?', default="")
 
     tf_idf_parser = subparsers.add_parser("tfidf")
     tf_idf_parser.add_argument("--counts", type=str, help="Use the given counts file instead of calculating one.")
@@ -58,8 +58,12 @@ def main() -> None:
     """Main function."""
     args = parse_args()
 
-    if args.query is not None:
-        metadata = get_data_from_hydrus(args.url, args.api_key, tags_to_search=args.query)
+    if args.query != "":
+        if not isinstance(args.query, List):
+            query = [args.query]
+        else:
+            query = args.query
+        metadata = get_data_from_hydrus(args.url, args.api_key, tags_to_search=query)
     else:
         metadata = None
 
